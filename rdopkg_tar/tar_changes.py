@@ -210,7 +210,7 @@ def main():
     
     # If the function returns True then uplaod then upload sources to distgit. Else skip
     fedpkg = upload_source(osdist,tarball,args.new_sources)
-    if fedpkg != None:
+    if fedpkg is not None:
         run(fedpkg, 'upload', tarball, direct=True)
 
     # Commit everything to dist-git
