@@ -150,7 +150,7 @@ def main():
         '--no-new-sources',
         dest='new_sources',
         help='Avoid automatic upload of new sources to dist-git lookaside cache',
-        action='store_true'
+        action='store_false'
     )
     args = parser.parse_args()
     spec = specfile.Spec()
@@ -210,7 +210,7 @@ def main():
     
     # If the function returns True then uplaod then upload sources to distgit. Else skip
     fedpkg = upload_source(osdist,tarball,args.new_sources)
-    if fedpkg is not None:
+    if fedpkg:
         run(fedpkg, 'upload', tarball, direct=True)
 
     # Commit everything to dist-git
