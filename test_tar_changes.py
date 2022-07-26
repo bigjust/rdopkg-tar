@@ -2,7 +2,11 @@ import os
 import importlib.machinery
 import importlib.util
 from rdopkg.utils.git import git
+from rdopkg import guess
 import pytest
+
+from unittest.mock import patch
+
 import py.path
 
 loader = importlib.machinery.SourceFileLoader('tarchanges', 'tar-changes')
@@ -51,3 +55,21 @@ second commit
 
 GitLab-User: developer@example.com"""
     assert message == expected
+
+@patch('rdopkg.guess.new_sources', autospec=True, return_value=True)
+@patch.object(tarchanges, 'run')
+@patch.object(tarchanges, 'clear_old_changes_sources')
+def test_upload_source(delete_sources, mocked_run, mocked_sources):
+    """
+    See if the `[fedpkg|rhpkg] update` command gets called if both are true:
+    1. guess.new_sources() returns True
+    2. the --no-new-sources flag was not passed
+    """
+
+    # flag was not detected by argparse
+    tarchanges.upload_source(guess.osdist(), 'test.tar', True)
+    mocked_run.assert_called_once()
+
+    # flag was detected by argparse
+    tarchanges.upload_source(guess.osdist(), 'test.tar', False)
+    mocked_run.assert_called_once() # run() was not called
